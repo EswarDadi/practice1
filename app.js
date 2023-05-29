@@ -4,6 +4,7 @@ const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const app = express();
 app.use(express.json());
+module.exports = app;
 const dbpath = path.join(__dirname, "cricketTeam.db");
 let db = null;
 const IntializeDbAndServer = async () => {
@@ -38,22 +39,18 @@ app.get("/players/", async (request, response) => {
 // create players api
 app.post("/players/", async (request, response) => {
   const newPlayer = request.body;
-  const playerDetails = {
-    playerName: "Vishal",
-    jerseyNumber: 17,
-    role: "Bowler",
-  };
+  const { player_id, playerName, jerseyNumber, role } = newPlayer;
   const playerQuery = `
   INSERT INTO 
   cricket_team(playerName,jerseyNumber,role)
-  VALUES('${playerName}',
+  VALUES('${player_id}',${playerName}',
     '${jerseyNumber}',
     '${role}'
     );
   `;
   const dbResponse = await db.run(playerQuery);
-  const playerId = dbResponse.lastId;
-  response.send({ playerId: playerId });
+  const playerid = dbResponse.lastId;
+  response.send({ playerid: playerId });
 });
 // get player using playerId api
 app.get("/players/:playerId/", async (request, response) => {
@@ -69,5 +66,34 @@ app.get("/players/:playerId/", async (request, response) => {
   const player = await db.get(getPlayerQuery);
   response.send(player);
 });
-
-module.exports = app;
+// update api call
+app.put("/players/:playerId", async (request, response) => {
+  const { playerId } = request.params;
+  const playerDetails = request.body;
+  const { player_id, playerName, jerseyNumber, role } = playerDetails;
+  const updatePlayerQuery = `
+    UPDATE
+    cricket_team
+    SET 
+    playerId=${player_id},
+    playerName=${playerName},
+    jerseyNumber=${jerseyNumber},
+    role=${role}
+    WHERE
+    player_id=${playerId};
+    `;
+  await db.run(updatePlayerQuery);
+  response.send("player profile updated successfully");
+});
+// delete api
+app.delete("/players/:playerId", async (request, response) => {
+  const { playerId } = request.params;
+  const deleteQuery = `
+    DELETE FROM 
+    cricket_team
+    WHERE
+    player_id=${playerId};
+    `;
+  await db.run(deleteQuery);
+  response.send("Deleted successfully");
+});
