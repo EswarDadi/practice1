@@ -39,12 +39,12 @@ app.get("/players/", async (request, response) => {
 // create players api
 app.post("/players/", async (request, response) => {
   const newPlayer = request.body;
-  const { player_id, playerName, jerseyNumber, role } = newPlayer;
+  const { player_name, jersey_number, role } = newPlayer;
   const playerQuery = `
   INSERT INTO 
   cricket_team(playerName,jerseyNumber,role)
-  VALUES('${player_id}',${playerName}',
-    '${jerseyNumber}',
+  VALUES(${player_id},'${player_name}',
+    ${jersey_number},
     '${role}'
     );
   `;
@@ -70,15 +70,15 @@ app.get("/players/:playerId/", async (request, response) => {
 app.put("/players/:playerId", async (request, response) => {
   const { playerId } = request.params;
   const playerDetails = request.body;
-  const { player_id, playerName, jerseyNumber, role } = playerDetails;
+  const { player_name, jersey_number, role } = playerDetails;
   const updatePlayerQuery = `
     UPDATE
     cricket_team
     SET 
     playerId=${player_id},
-    playerName=${playerName},
-    jerseyNumber=${jerseyNumber},
-    role=${role}
+    playerName='${player_name}',
+    jerseyNumber=${jersey_number},
+    role='${role}'
     WHERE
     player_id=${playerId};
     `;
