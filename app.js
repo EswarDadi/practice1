@@ -4,7 +4,7 @@ const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const app = express();
 app.use(express.json());
-module.exports = app;
+
 const dbpath = path.join(__dirname, "cricketTeam.db");
 let db = null;
 const IntializeDbAndServer = async () => {
@@ -22,6 +22,14 @@ const IntializeDbAndServer = async () => {
   }
 };
 IntializeDbAndServer();
+const convertDbObjectToResponseObject = (dbObject) => {
+  return {
+    playerId: dbObject.player_id,
+    playerName: dbObject.player_name,
+    jerseyNumber: dbObject.jersey_number,
+    role: dbObject.role,
+  };
+};
 
 // get players api
 app.get("/players/", async (request, response) => {
@@ -34,7 +42,11 @@ app.get("/players/", async (request, response) => {
         player_id
     `;
   const playersArray = await db.all(getPlayersQuery);
-  response.send(playersArray);
+  response.send(
+    playersArray.map((eachPlayer) => {
+      convertDbObjectToResponseObject(eachPlayer);
+    })
+  );
 });
 // create players api
 app.post("/players/", async (request, response) => {
@@ -64,7 +76,8 @@ app.get("/players/:playerId/", async (request, response) => {
     player_id=${playerId}
     `;
   const player = await db.get(getPlayerQuery);
-  response.send(player);
+  const playerdetails = convertDbObjectToResponseObject(player);
+  response.send(playerdetails);
 });
 // update api call
 app.put("/players/:playerId", async (request, response) => {
@@ -97,3 +110,4 @@ app.delete("/players/:playerId", async (request, response) => {
   await db.run(deleteQuery);
   response.send("Deleted successfully");
 });
+module.exports = app;
