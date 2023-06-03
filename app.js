@@ -51,10 +51,10 @@ app.get("/players/", async (request, response) => {
 // create players api
 app.post("/players/", async (request, response) => {
   const newPlayer = request.body;
-  const { player_name, jersey_number, role } = newPlayer;
+  const { playerName, jersey_number, role } = newPlayer;
   const playerQuery = `
   INSERT INTO 
-  cricket_team(playerName,jerseyNumber,role)
+  cricket_team(player_name,jersey_number,role)
   VALUES(${player_id},'${player_name}',
     ${jersey_number},
     '${role}'
@@ -62,7 +62,7 @@ app.post("/players/", async (request, response) => {
   `;
   const dbResponse = await db.run(playerQuery);
   const playerid = dbResponse.lastId;
-  response.send({ playerid: playerId });
+  response.send("Player Added to Team");
 });
 // get player using playerId api
 app.get("/players/:playerId/", async (request, response) => {
@@ -83,20 +83,20 @@ app.get("/players/:playerId/", async (request, response) => {
 app.put("/players/:playerId", async (request, response) => {
   const { playerId } = request.params;
   const playerDetails = request.body;
-  const { player_name, jersey_number, role } = playerDetails;
+  const { playerName, jerseyNumber, role } = playerDetails;
   const updatePlayerQuery = `
     UPDATE
     cricket_team
     SET 
-    playerId=${player_id},
-    playerName='${player_name}',
-    jerseyNumber=${jersey_number},
+    
+    player_name='${playerName}',
+    jersey_number=${jerseyNumber},
     role='${role}'
     WHERE
     player_id=${playerId};
     `;
   await db.run(updatePlayerQuery);
-  response.send("player profile updated successfully");
+  response.send("Player Details Updated");
 });
 // delete api
 app.delete("/players/:playerId", async (request, response) => {
@@ -108,6 +108,6 @@ app.delete("/players/:playerId", async (request, response) => {
     player_id=${playerId};
     `;
   await db.run(deleteQuery);
-  response.send("Deleted successfully");
+  response.send("Player Removed");
 });
 module.exports = app;
